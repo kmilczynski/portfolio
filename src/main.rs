@@ -8,6 +8,7 @@ use perseus::prelude::*;
 pub fn main<G: Html>() -> PerseusApp<G> {
     PerseusApp::new()
         .template(crate::templates::index::get_template())
+        .error_views(crate::templates::error_views::get_error_views())
         .index_view(|cx| {
             sycamore::view! {cx,
                 html(class="dark", lang="en") {
