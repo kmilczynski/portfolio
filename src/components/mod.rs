@@ -1,0 +1,8 @@
+pub mod footer;
+pub mod hero;
+pub mod icons;
+pub mod navbar;
+pub mod project_card;
+pub mod skills;
+pub mod social_links;
+pub mod timeline;

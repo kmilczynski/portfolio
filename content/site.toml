@@ -1,0 +1,39 @@
+[site]
+title = "Kacper | Software Developer"
+description = "Placeholder"
+author = "Kacper"
+
+[social]
+github = "https://github.com/soon"
+linkedin = "https://linkedin.com/in/soon"
+email = "illadd@soon.com"
+
+[about]
+greeting = "Hi, my name is"
+name = "Kacper"
+tagline = "I build things."
+bio = "Placeholder"
+
+[[skills]]
+name = "Backend"
+technologies = "PHP, Symfony, Rust"
+
+[[skills]]
+name = "Frontend"
+technologies = "Sycamore, Perseus, JS"
+
+[[skills]]
+name = "Database"
+technologies = "PostgreSQL, MySQL"
+
+[[skills]]
+name = "DevOps"
+technologies = "Docker, Linux, CI/CD"
+
+[[experience]]
+title = "Software Developer"
+company = "Placeholder"
+period = "2022 — Present"
+description = "Just a placeholder"
+current = true
+

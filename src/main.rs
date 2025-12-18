@@ -1,3 +1,5 @@
+mod components;
+mod models;
 mod templates;
 
 use perseus::prelude::*;
@@ -15,6 +17,7 @@ pub fn main<G: Html>() -> PerseusApp<G> {
                         meta(name="author", content="Kacper")
                         link(href="/.perseus/static/css/styles.css", rel="stylesheet", defer=true)
                         link(rel="icon", type="image/x-icon", sizes="16x16", href="/.perseus/static/favicon.ico")
+                        script(src="https://cdn.tailwindcss.com")
                     }
                     body() {
                         PerseusRoot()
