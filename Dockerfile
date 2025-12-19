@@ -1,23 +1,23 @@
-# ---------- build stage ----------
 FROM rust:1.90-slim AS builder
 
 WORKDIR /app
 
-# system deps
+# system deps (binaryen provides wasm-opt)
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
     ca-certificates \
+    binaryen \
     && rm -rf /var/lib/apt/lists/*
 
-# install perseus
-RUN cargo install perseus-cli --locked
+RUN rustup target add wasm32-unknown-unknown
 
-# copy source
+RUN cargo install perseus-cli --locked
+RUN cargo install wasm-bindgen-cli --locked
+
 COPY . .
 
-# build perseus app
-RUN perseus build --release
+RUN perseus deploy
 
 # ---------- runtime stage ----------
 FROM debian:bookworm-slim
@@ -28,9 +28,10 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app /app
-COPY --from=builder /usr/local/cargo/bin/perseus /usr/local/bin/perseus
+COPY --from=builder /app/pkg/ /app/portfolio
+RUN chmod +x /app/portfolio/server
 
-EXPOSE 556
+ENV PERSEUS_HOST=0.0.0.0
+ENV PERSEUS_PORT=8080
 
-CMD ["perseus", "serve", "--release", "--host", "::", "--port", "556"]
+CMD ["./portfolio/server"]
