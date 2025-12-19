@@ -1,0 +1,8 @@
+[[projects]]
+id = 1
+title = "Portfolio"
+description = "Simple portfolio written in Rust using TailwindCSS"
+image = "/.perseus/static/img/project.jpg"
+tags = ["Rust", "Sycamore", "Perseus"]
+github = "https://github.com/kmilczynski/portfolio"
+demo = "https://kmilczynski.byst.re/"

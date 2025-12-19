@@ -27,7 +27,12 @@ pub fn Timeline<G: Html>(cx: Scope, props: TimelineProps) -> View<G> {
                             } else {
                                 "absolute -left-8 top-1.5 w-2 h-2 rounded-full bg-accent/60"
                             };
-
+                            let stack_items: Vec<String> = exp.stack
+                                                            .split(',')
+                                                            .map(|s| s.trim().to_string())
+                                                            .filter(|s| !s.is_empty())
+                                                            .collect();
+                            let stack_signal = create_signal(cx, stack_items);
                             view! { cx,
                                 article(class="relative") {
                                     div(class=dot_class) {}
@@ -39,8 +44,18 @@ pub fn Timeline<G: Html>(cx: Scope, props: TimelineProps) -> View<G> {
                                     p(class="font-mono text-xs text-gray-600 mb-2") {
                                         (exp.period)
                                     }
-                                    p(class="text-gray-400 text-sm leading-relaxed") {
+                                    p(class="text-gray-400 text-sm leading-relaxed mb-2") {
                                         (exp.description)
+                                    }
+                                    div(class="flex flex-wrap gap-2") {
+                                        Indexed(
+                                            iterable=stack_signal,
+                                            view=|cx, tag| view! { cx,
+                                                span(class="px-2 py-1 bg-dark/50 text-gray-500 text-xs font-mono rounded") {
+                                                    (tag)
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }

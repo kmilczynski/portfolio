@@ -4,36 +4,80 @@ description = "Placeholder"
 author = "Kacper"
 
 [social]
-github = "https://github.com/soon"
-linkedin = "https://linkedin.com/in/soon"
+github = "https://github.com/kmilczynski"
+linkedin = "https://linkedin.com/in/kacpermilczynski"
 email = "illadd@soon.com"
 
 [about]
 greeting = "Hi, my name is"
 name = "Kacper"
 tagline = "I build things."
-bio = "Placeholder"
+bio = "Software developer specializing in backend systems, real-time applications, and exploring the Rust ecosystem. Currently focused on building performant web applications with modern tech stacks."
 
 [[skills]]
-name = "Backend"
-technologies = "PHP, Symfony, Rust"
+name = "Languages"
+technologies = "PHP, TypeScript, JavaScript, Rust"
 
 [[skills]]
-name = "Frontend"
-technologies = "Sycamore, Perseus, JS"
+name = "Frameworks"
+technologies = "Symfony, Nest.js, API Platform"
 
 [[skills]]
-name = "Database"
-technologies = "PostgreSQL, MySQL"
+name = "Databases"
+technologies = "PostgreSQL, MySQL, MongoDB, Redis"
 
 [[skills]]
 name = "DevOps"
-technologies = "Docker, Linux, CI/CD"
+technologies = "Docker, GitLab CI/CD, Terraform"
+
+[[skills]]
+name = "Cloud"
+technologies = "AWS, GCP"
+
+[[skills]]
+name = "Message Queue"
+technologies = "RabbitMQ, SQS"
+
+[[skills]]
+name = "Architecture"
+technologies = "DDD, CQRS, Hexagonal, TDD"
+
+[[skills]]
+name = "Tools"
+technologies = "Git, PHPUnit, xDebug, Linux"
+
+[[skills]]
+name = "IDE"
+technologies = "PHPStorm, CursorAI, VSCodium"
+
+[[experience]]
+title = "PHP Developer"
+company = "Open Nexus Sp. z o.o."
+period = "Aug 2025 — Present"
+description = "Working on rewriting legacy system, implementing architectural solutions with DDD and CQRS patterns. Developing modular monolith, maintaining old system, fixing bugs and creating new features."
+stack = "PHP 8.x, PHP 7.3, Symfony 7, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
+current = true
+
+[[experience]]
+title = "PHP/TypeScript Developer / DevOps"
+company = "Coraz Lepsza Firma"
+period = "Jan 2023 — Jul 2025"
+description = "Rewrote CRM system and PHP API into TypeScript. Developed modular monolith with DDD architecture, maintained AWS infrastructure with Terraform, created advanced MongoDB queries."
+stack = "PHP 8.x, Symfony 7, TypeScript, Nest.js, MySQL, MongoDB, RabbitMQ, SQS, API Platform, PHPUnit, Docker, GitLab CI, AWS, Terraform"
+current = false
+
+[[experience]]
+title = "PHP Developer"
+company = "Satisfly"
+period = "Dec 2021 — Dec 2022"
+description = "Developed ecommerce integration system with hexagonal architecture and TDD. Implemented JWT authorization, created API documentation with API Platform."
+stack = "PHP 8.x, Symfony 5, PostgreSQL, Redis, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI"
+current = false
 
 [[experience]]
 title = "Software Developer"
-company = "Placeholder"
-period = "2022 — Present"
-description = "Just a placeholder"
-current = true
-
+company = "Questy"
+period = "May 2021 — Dec 2021"
+description = "Maintained client systems, extended ERP integrations, participated in code reviews and client discussions. Mentored new developers."
+stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, ERP Systems"
+current = false

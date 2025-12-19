@@ -43,6 +43,7 @@ pub struct Experience {
     pub company: String,
     pub period: String,
     pub description: String,
+    pub stack: String,
     pub current: bool,
 }
 

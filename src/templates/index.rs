@@ -13,7 +13,6 @@ use perseus::prelude::*;
 use serde::{Deserialize, Serialize};
 use sycamore::prelude::*;
 
-// Combined state for the index page
 #[derive(Debug, Clone, Serialize, Deserialize, ReactiveState)]
 #[rx(alias = "IndexStateRx")]
 pub struct IndexState {
