@@ -49,8 +49,8 @@ pub struct Experience {
 impl SiteConfig {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let content = std::fs::read_to_string("content/site.toml")?;
-        let config: SiteConfig = toml::from_str(&content)?;
+        let site_content = include_str!("../content/site.toml");
+        let config: SiteConfig = toml::from_str(&site_content)?;
         Ok(config)
     }
 }

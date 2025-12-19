@@ -19,8 +19,8 @@ pub struct ProjectsConfig {
 impl ProjectsConfig {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn load() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let content = std::fs::read_to_string("content/projects.toml")?;
-        let config: ProjectsConfig = toml::from_str(&content)?;
+        let projects_content = include_str!("../content/projects.toml");
+        let config: ProjectsConfig = toml::from_str(&projects_content)?;
         Ok(config)
     }
 }
