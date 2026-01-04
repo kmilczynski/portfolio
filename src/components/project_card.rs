@@ -82,7 +82,7 @@ pub struct ProjectsGridProps {
 #[component]
 pub fn ProjectsGrid<G: Html>(cx: Scope, props: ProjectsGridProps) -> View<G> {
     view! { cx,
-        section(id="projects", class="py-20") {
+        section(id="projects", class="py-24") {
             h2(class="font-mono text-sm text-accent-light mb-8 flex items-center gap-3") {
                 span(class="w-8 h-px bg-accent") {}
                 "projects"

@@ -1,3 +1,4 @@
+pub mod back_to_top;
 pub mod blog_card;
 pub mod footer;
 pub mod hero;

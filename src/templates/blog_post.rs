@@ -1,6 +1,7 @@
 use perseus::prelude::*;
 use sycamore::prelude::*;
 
+use crate::components::back_to_top::BackToTop;
 use crate::components::footer::Footer;
 use crate::components::navbar::Navbar;
 
@@ -118,6 +119,7 @@ fn BlogPostPage<G: Html>(cx: Scope, post: Post) -> View<G> {
         }
 
         Footer {}
+        BackToTop {}
     }
 }
 

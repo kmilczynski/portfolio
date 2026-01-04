@@ -11,9 +11,9 @@ pub fn Navbar<G: Html>(cx: Scope) -> View<G> {
                         span(class="text-accent-light") { "." }
                     }
                     div(class="flex gap-8") {
-                        a(href="#about", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "about" }
-                        a(href="#projects", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "projects" }
-                        a(href="#blog", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "blog" }
+                        a(href="/", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "home" }
+                        a(href="/projects", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "projects" }
+                        a(href="/blog", class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "blog" }
                     }
                 }
             }

@@ -2,6 +2,7 @@ use perseus::prelude::*;
 use serde::{Deserialize, Serialize};
 use sycamore::prelude::*;
 
+use crate::components::back_to_top::BackToTop;
 use crate::components::blog_card::BlogCard;
 use crate::components::footer::Footer;
 use crate::components::navbar::Navbar;
@@ -67,6 +68,7 @@ fn blog_index_page<G: Html>(cx: Scope, state: &'a BlogIndexStateRx) -> View<G> {
         }
 
         Footer {}
+        BackToTop {}
     }
 }
 
