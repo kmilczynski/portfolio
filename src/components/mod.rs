@@ -1,3 +1,4 @@
+pub mod blog_card;
 pub mod footer;
 pub mod hero;
 pub mod icons;

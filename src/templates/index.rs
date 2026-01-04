@@ -1,3 +1,4 @@
+use crate::components::blog_card::BlogSection;
 use crate::components::footer::Footer;
 use crate::components::hero::Hero;
 use crate::components::navbar::Navbar;
@@ -6,7 +7,7 @@ use crate::components::skills::Skills;
 use crate::components::social_links::SocialLinks;
 use crate::components::timeline::Timeline;
 use crate::models::{
-    AboutSection, Experience, Project, ProjectsConfig, SiteConfig, Skill,
+    AboutSection, Experience, Post, Project, ProjectsConfig, SiteConfig, Skill,
     SocialLinks as SocialLinksData,
 };
 use perseus::prelude::*;
@@ -21,6 +22,7 @@ pub struct IndexState {
     pub skills: Vec<Skill>,
     pub experience: Vec<Experience>,
     pub projects: Option<Vec<Project>>,
+    pub posts: Option<Vec<Post>>,
     pub site_title: String,
     pub site_description: String,
 }
@@ -31,6 +33,7 @@ fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
     let skills = (*state.skills.get()).clone();
     let experience = (*state.experience.get()).clone();
     let projects = (*state.projects.get()).clone();
+    let posts = (*state.posts.get()).clone();
 
     view! { cx,
         Navbar {}
@@ -45,15 +48,7 @@ fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
 
             ProjectsGrid(projects=projects)
 
-            section(id="blog", class="py-20") {
-                h2(class="font-mono text-sm text-accent-light mb-8 flex items-center gap-3") {
-                    span(class="w-8 h-px bg-accent") {}
-                    "blog"
-                }
-                div(class="text-gray-500 text-center py-12") {
-                    p { "Blog coming soon..." }
-                }
-            }
+            BlogSection(posts=posts)
         }
 
         Footer {}
@@ -77,8 +72,14 @@ pub fn get_template<G: Html>() -> Template<G> {
 
 #[engine_only_fn]
 async fn get_build_state(_info: StateGeneratorInfo<()>) -> IndexState {
+    use crate::models::post::loader;
+    use std::env;
+
     let site_config = SiteConfig::load().expect("Failed to load site config");
     let projects_config = ProjectsConfig::load().expect("Failed to load projects config");
+
+    let posts_dir = env::current_dir().unwrap().join("posts");
+    let posts = loader::load_all_posts(&posts_dir).ok();
 
     IndexState {
         about: site_config.about,
@@ -86,6 +87,7 @@ async fn get_build_state(_info: StateGeneratorInfo<()>) -> IndexState {
         skills: site_config.skills,
         experience: site_config.experience,
         projects: projects_config.projects,
+        posts,
         site_title: site_config.site.title,
         site_description: site_config.site.description,
     }
