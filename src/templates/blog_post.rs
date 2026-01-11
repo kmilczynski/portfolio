@@ -13,8 +13,28 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
     use std::env;
 
     let posts_dir = env::current_dir().unwrap().join("posts");
-    loader::load_post_by_slug(&posts_dir, &info.path)
-        .expect(&format!("Failed to load post: {}", info.path))
+
+    match loader::load_post_by_slug_and_locale(&posts_dir, &info.path, &info.locale) {
+        Ok(post) => post,
+        Err(e) => {
+            eprintln!("Warning: Could not load post '{}' for locale '{}': {}. This post will be skipped.", info.path, info.locale, e);
+            // Return a placeholder post that indicates the content is not available
+            Post {
+                frontmatter: crate::models::post::PostFrontmatter {
+                    title: format!("Content not available in {}", info.locale),
+                    slug: info.path.clone(),
+                    date: String::new(),
+                    status: "draft".to_string(),
+                    excerpt: format!("This post is not available in the {} locale.", info.locale),
+                    tags: vec![],
+                    image: None,
+                    seo: None,
+                },
+                content: format!("This content is not available in the {} locale.", info.locale),
+                html_content: format!("<p>This content is not available in the {} locale.</p>", info.locale),
+            }
+        }
+    }
 }
 
 #[engine_only_fn]
@@ -23,19 +43,31 @@ async fn get_build_paths() -> BuildPaths {
     use std::env;
 
     let posts_dir = env::current_dir().unwrap().join("posts");
+    let locales = vec!["pl", "en"];
+    let mut locale_slugs: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
 
-    let posts = loader::load_all_posts(&posts_dir).unwrap_or_default();
+    for locale in &locales {
+        let posts = loader::load_all_posts_for_locale(&posts_dir, Some(locale)).unwrap_or_default();
 
-    eprintln!("Found {} posts", posts.len());
-    for post in &posts {
-        eprintln!(
-            "  - {} (slug: {})",
-            post.frontmatter.title, post.frontmatter.slug
-        );
+        eprintln!("Found {} posts for locale {}", posts.len(), locale);
+        let slugs: Vec<String> = posts.iter().map(|p| {
+            eprintln!("  - {} (slug: {})", p.frontmatter.title, p.frontmatter.slug);
+            p.frontmatter.slug.clone()
+        }).collect();
+
+        locale_slugs.insert(locale.to_string(), slugs);
     }
 
+    // Only build paths that exist for each locale
+    let all_paths: Vec<String> = locale_slugs.values()
+        .flatten()
+        .map(|s| s.clone())
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
     BuildPaths {
-        paths: posts.iter().map(|p| p.frontmatter.slug.clone()).collect(),
+        paths: all_paths,
         extra: ().into(),
     }
 }

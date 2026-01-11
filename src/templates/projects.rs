@@ -62,10 +62,10 @@ fn projects_page<G: Html>(cx: Scope, state: &'a ProjectsStateRx) -> View<G> {
 }
 
 #[engine_only_fn]
-async fn get_build_state(_info: StateGeneratorInfo<()>) -> ProjectsState {
+async fn get_build_state(info: StateGeneratorInfo<()>) -> ProjectsState {
     use crate::models::ProjectsConfig;
 
-    let projects_config = ProjectsConfig::load().expect("Failed to load projects config");
+    let projects_config = ProjectsConfig::load_for_locale(&info.locale).expect("Failed to load projects config");
 
     ProjectsState {
         projects: projects_config.projects,

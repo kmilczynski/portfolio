@@ -1,0 +1,10 @@
+home = home
+projects = projects
+blog = blog
+back-to-blog = ← Back to blog
+min-read = min read
+no-posts-yet = No posts yet.
+check-back-soon = Check back soon for new content!
+post = post
+posts = posts
+software-developer = Software Developer

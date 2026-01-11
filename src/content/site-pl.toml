@@ -1,0 +1,83 @@
+[site]
+title = "Kacper | Deweloper Oprogramowania"
+description = "Portfolio Kacpera Milczyńskiego - Deweloper Oprogramowania"
+author = "Kacper"
+
+[social]
+github = "https://github.com/kmilczynski"
+linkedin = "https://linkedin.com/in/kacpermilczynski"
+email = "illadd@soon.com"
+
+[about]
+greeting = "Cześć, nazywam się"
+name = "Kacper"
+tagline = "Buduję rzeczy."
+bio = "Deweloper oprogramowania specjalizujący się w systemach backendowych, aplikacjach czasu rzeczywistego i eksploracji ekosystemu Rust. Obecnie skupiam się na budowaniu wydajnych aplikacji webowych z nowoczesnymi stosami technologicznymi."
+
+[[skills]]
+name = "Języki"
+technologies = "PHP, TypeScript, JavaScript, Rust"
+
+[[skills]]
+name = "Frameworki"
+technologies = "Symfony, Nest.js, API Platform"
+
+[[skills]]
+name = "Bazy danych"
+technologies = "PostgreSQL, MySQL, MongoDB, Redis"
+
+[[skills]]
+name = "DevOps"
+technologies = "Docker, GitLab CI/CD, Terraform"
+
+[[skills]]
+name = "Chmura"
+technologies = "AWS, GCP"
+
+[[skills]]
+name = "Kolejki komunikatów"
+technologies = "RabbitMQ, SQS"
+
+[[skills]]
+name = "Architektura"
+technologies = "DDD, CQRS, Hexagonal, TDD"
+
+[[skills]]
+name = "Narzędzia"
+technologies = "Git, PHPUnit, xDebug, Linux"
+
+[[skills]]
+name = "IDE"
+technologies = "PHPStorm, CursorAI, VSCodium"
+
+[[experience]]
+title = "PHP Developer"
+company = "Open Nexus Sp. z o.o."
+period = "Sie 2025 — Obecnie"
+description = "Praca nad przepisaniem systemu legacy, implementacja rozwiązań architektonicznych z wzorcami DDD i CQRS. Rozwijanie modularnego monolitu, utrzymanie starego systemu, naprawianie błędów i tworzenie nowych funkcjonalności."
+stack = "PHP 8.x, PHP 7.3, Symfony 7, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
+current = true
+
+[[experience]]
+title = "PHP/TypeScript Developer / DevOps"
+company = "Coraz Lepsza Firma"
+period = "Sty 2023 — Lip 2025"
+description = "Przepisałem system CRM i PHP API na TypeScript. Rozwijałem modularny monolit z architekturą DDD, utrzymywałem infrastrukturę AWS z Terraform, tworzyłem zaawansowane zapytania MongoDB."
+stack = "PHP 8.x, Symfony 7, TypeScript, Nest.js, MySQL, MongoDB, RabbitMQ, SQS, API Platform, PHPUnit, Docker, GitLab CI, AWS, Terraform"
+current = false
+
+[[experience]]
+title = "PHP Developer"
+company = "Satisfly"
+period = "Gru 2021 — Gru 2022"
+description = "Rozwijałem system integracji e-commerce z architekturą heksagonalną i TDD. Implementowałem autoryzację JWT, tworzyłem dokumentację API z API Platform."
+stack = "PHP 8.x, Symfony 5, PostgreSQL, Redis, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI"
+current = false
+
+[[experience]]
+title = "Software Developer"
+company = "Questy"
+period = "Maj 2021 — Gru 2021"
+description = "Utrzymywałem systemy klientów, rozszerzałem integracje ERP, uczestniczyłem w code review i dyskusjach z klientami. Mentorowałem nowych deweloperów."
+stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, Systemy ERP"
+current = false

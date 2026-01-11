@@ -12,9 +12,10 @@ pub fn main<G: Html>() -> PerseusApp<G> {
         .template(crate::templates::blog_index::get_template())
         .template(crate::templates::blog_post::get_template())
         .error_views(crate::templates::error_views::get_error_views())
+        .locales_and_translations_manager("pl", &["en"])
         .index_view(|cx| {
             sycamore::view! {cx,
-                html(class="dark", lang="en") {
+                html(class="dark", lang="pl") {
                     head() {
                         meta(name="viewport", content="width=device-width, initial-scale=1, minimum-scale=1")
                         meta(charset="UTF-8")

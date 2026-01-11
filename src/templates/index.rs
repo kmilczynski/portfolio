@@ -69,14 +69,14 @@ pub fn get_template<G: Html>() -> Template<G> {
 }
 
 #[engine_only_fn]
-async fn get_build_state(_info: StateGeneratorInfo<()>) -> IndexState {
+async fn get_build_state(info: StateGeneratorInfo<()>) -> IndexState {
     use crate::models::post::loader;
     use std::env;
 
-    let site_config = SiteConfig::load().expect("Failed to load site config");
+    let site_config = SiteConfig::load_for_locale(&info.locale).expect("Failed to load site config");
 
     let posts_dir = env::current_dir().unwrap().join("posts");
-    let posts = loader::load_all_posts(&posts_dir).ok();
+    let posts = loader::load_all_posts_for_locale(&posts_dir, Some(&info.locale)).ok();
 
     IndexState {
         about: site_config.about,

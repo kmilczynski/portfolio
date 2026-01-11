@@ -79,8 +79,9 @@ pub mod loader {
         html_output
     }
 
-    pub fn load_all_posts(
+    pub fn load_all_posts_for_locale(
         posts_dir: &Path,
+        locale: Option<&str>,
     ) -> Result<Vec<Post>, Box<dyn std::error::Error + Send + Sync>> {
         let mut posts = Vec::new();
 
@@ -88,7 +89,18 @@ pub mod loader {
             return Ok(posts);
         }
 
-        for entry in fs::read_dir(posts_dir)? {
+        // If locale is specified, look in locale subdirectory
+        let search_dir = if let Some(loc) = locale {
+            posts_dir.join(loc)
+        } else {
+            posts_dir.to_path_buf()
+        };
+
+        if !search_dir.exists() {
+            return Ok(posts);
+        }
+
+        for entry in fs::read_dir(search_dir)? {
             let entry = entry?;
             let path = entry.path();
 
@@ -109,10 +121,18 @@ pub mod loader {
         Ok(posts)
     }
 
-    pub fn load_post_by_slug(
+    pub fn load_post_by_slug_and_locale(
         posts_dir: &Path,
         slug: &str,
+        locale: &str,
     ) -> Result<Post, Box<dyn std::error::Error + Send + Sync>> {
+        // Look in locale-specific subdirectory (e.g., "posts/pl/slug.md")
+        let locale_file_path = posts_dir.join(locale).join(format!("{}.md", slug));
+        if locale_file_path.exists() {
+            return parse_post_file(&locale_file_path);
+        }
+
+        // Fallback to root directory
         let file_path = posts_dir.join(format!("{}.md", slug));
         parse_post_file(&file_path)
     }

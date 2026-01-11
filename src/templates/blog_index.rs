@@ -9,12 +9,12 @@ use crate::components::navbar::Navbar;
 use crate::models::Post;
 
 #[engine_only_fn]
-async fn get_build_state(_info: StateGeneratorInfo<()>) -> BlogIndexState {
+async fn get_build_state(info: StateGeneratorInfo<()>) -> BlogIndexState {
     use crate::models::post::loader;
     use std::env;
 
     let posts_dir = env::current_dir().unwrap().join("posts");
-    let posts = loader::load_all_posts(&posts_dir).unwrap_or_default();
+    let posts = loader::load_all_posts_for_locale(&posts_dir, Some(&info.locale)).unwrap_or_default();
 
     BlogIndexState { posts }
 }

@@ -1,0 +1,10 @@
+home = strona główna
+projects = projekty
+blog = blog
+back-to-blog = ← Wróć do bloga
+min-read = min czytania
+no-posts-yet = Jeszcze brak postów.
+check-back-soon = Wróć wkrótce po nowe treści!
+post = post
+posts = posty
+software-developer = Deweloper oprogramowania

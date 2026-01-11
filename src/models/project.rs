@@ -18,8 +18,14 @@ pub struct ProjectsConfig {
 
 impl ProjectsConfig {
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn load() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let projects_content = include_str!("../content/projects.toml");
+    pub fn load_for_locale(locale: &str) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        use std::fs;
+        use std::path::PathBuf;
+
+        let file_name = format!("projects-{}.toml", locale);
+        let file_path = PathBuf::from("src/content").join(&file_name);
+
+        let projects_content = fs::read_to_string(&file_path)?;
         let config: ProjectsConfig = toml::from_str(&projects_content)?;
         Ok(config)
     }

@@ -49,8 +49,14 @@ pub struct Experience {
 
 impl SiteConfig {
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn load() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let site_content = include_str!("../content/site.toml");
+    pub fn load_for_locale(locale: &str) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        use std::fs;
+        use std::path::PathBuf;
+
+        let file_name = format!("site-{}.toml", locale);
+        let file_path = PathBuf::from("src/content").join(&file_name);
+
+        let site_content = fs::read_to_string(&file_path)?;
         let config: SiteConfig = toml::from_str(&site_content)?;
         Ok(config)
     }
