@@ -93,7 +93,7 @@ fn BlogPostPage<G: Html>(cx: Scope, post: Post) -> View<G> {
         main(class="max-w-3xl mx-auto px-6 pt-32 pb-20") {
             // Back link
             a(
-                href="/blog",
+                href=link!(cx, "/blog"),
                 class="inline-flex items-center gap-2 text-gray-500 hover:text-accent-light transition-colors text-sm font-mono mb-10"
             ) {
                 "← Back to blog"

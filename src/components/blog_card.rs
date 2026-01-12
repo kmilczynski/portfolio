@@ -1,6 +1,7 @@
 use crate::components::icons::IconArrowRight;
 use crate::models::Post;
 use sycamore::prelude::*;
+use perseus::prelude::*;
 
 #[derive(Prop)]
 pub struct BlogCardProps {
@@ -18,7 +19,7 @@ pub fn BlogCard<G: Html>(cx: Scope, props: BlogCardProps) -> View<G> {
     view! { cx,
         article {
             a(
-                href=href,
+                href=link!(cx, &href),
                 class="blog-card block bg-darker/30 border border-dark rounded-xl p-5 hover:bg-darker/50 hover:border-accent/40 transition-all duration-300 group"
             ) {
                 time(
@@ -65,7 +66,7 @@ pub fn BlogSection<G: Html>(cx: Scope, props: BlogSectionProps) -> View<G> {
                                     "Recent posts"
                                 }
                                 a(
-                                    href="/blog",
+                                    href=link!(cx, "/blog"),
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-accent text-darkest font-mono text-sm rounded-lg hover:bg-accent-light transition-all duration-300 group"
                                 ) {
                                     "See all"

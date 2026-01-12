@@ -42,7 +42,7 @@ pub fn get_error_views<G: Html>() -> ErrorViews<G> {
                                 // Action buttons
                                 div(class="flex flex-col md:flex-row gap-4 justify-center items-center") {
                                     a(
-                                        href="/",
+                                        href=link!(cx, "/"),
                                         class="px-8 py-4 bg-accent hover:bg-accent-light text-cream font-medium rounded-lg transition-all duration-300"
                                     ) {
                                         "← Back to Home"
@@ -73,7 +73,7 @@ pub fn get_error_views<G: Html>() -> ErrorViews<G> {
                                     "There was an issue with your request. Please try again."
                                 }
                                 a(
-                                    href="/",
+                                    href=link!(cx, "/"),
                                     class="inline-block px-8 py-4 bg-accent hover:bg-accent-light text-cream font-medium rounded-lg transition-all duration-300"
                                 ) {
                                     "← Back to Home"
@@ -215,7 +215,7 @@ pub fn get_error_views<G: Html>() -> ErrorViews<G> {
                                     "↻ Reload Page"
                                 }
                                 a(
-                                    href="/",
+                                    href=link!(cx, "/"),
                                     class="px-8 py-4 border border-dark hover:border-accent/40 text-gray-400 hover:text-cream font-medium rounded-lg transition-all duration-300"
                                 ) {
                                     "← Back to Home"
