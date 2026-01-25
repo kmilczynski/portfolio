@@ -3,3 +3,6 @@ target/
 pkg/
 posts/
 node_modules/
+
+data/
+.env

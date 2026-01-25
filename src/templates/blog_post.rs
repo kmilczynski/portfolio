@@ -8,67 +8,94 @@ use crate::components::navbar::Navbar;
 use crate::models::Post;
 
 #[engine_only_fn]
-async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
-    use crate::models::post::loader;
-    use std::env;
-
-    let posts_dir = env::current_dir().unwrap().join("posts");
-
-    match loader::load_post_by_slug_and_locale(&posts_dir, &info.path, &info.locale) {
-        Ok(post) => post,
-        Err(e) => {
-            eprintln!("Warning: Could not load post '{}' for locale '{}': {}. This post will be skipped.", info.path, info.locale, e);
-            // Return a placeholder post that indicates the content is not available
-            Post {
-                frontmatter: crate::models::post::PostFrontmatter {
-                    title: format!("Content not available in {}", info.locale),
-                    slug: info.path.clone(),
-                    date: String::new(),
-                    status: "draft".to_string(),
-                    excerpt: format!("This post is not available in the {} locale.", info.locale),
-                    tags: vec![],
-                    image: None,
-                    seo: None,
-                },
-                content: format!("This content is not available in the {} locale.", info.locale),
-                html_content: format!("<p>This content is not available in the {} locale.</p>", info.locale),
-            }
-        }
+async fn get_build_paths() -> BuildPaths {
+    // Return empty paths - all posts are generated incrementally on request
+    BuildPaths {
+        paths: vec![],
+        extra: ().into(),
     }
 }
 
 #[engine_only_fn]
-async fn get_build_paths() -> BuildPaths {
-    use crate::models::post::loader;
-    use std::env;
+async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
+    use crate::admin::db::get_pool;
+    use crate::admin::models::DbPost;
+    use crate::models::post::loader::render_markdown;
+    use crate::models::PostFrontmatter;
 
-    let posts_dir = env::current_dir().unwrap().join("posts");
-    let locales = vec!["pl", "en"];
-    let mut locale_slugs: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+    let slug = info.path.clone();
+    let locale = info.locale.to_string();
 
-    for locale in &locales {
-        let posts = loader::load_all_posts_for_locale(&posts_dir, Some(locale)).unwrap_or_default();
+    let pool = match get_pool() {
+        Some(pool) => pool.clone(),
+        None => {
+            return Post {
+                frontmatter: PostFrontmatter {
+                    title: "Database Error".to_string(),
+                    slug: slug.clone(),
+                    date: String::new(),
+                    status: "draft".to_string(),
+                    excerpt: "Could not connect to database.".to_string(),
+                    tags: vec![],
+                    image: None,
+                    seo: None,
+                },
+                content: "Database error.".to_string(),
+                html_content: "<p>Could not connect to database.</p>".to_string(),
+            };
+        }
+    };
 
-        eprintln!("Found {} posts for locale {}", posts.len(), locale);
-        let slugs: Vec<String> = posts.iter().map(|p| {
-            eprintln!("  - {} (slug: {})", p.frontmatter.title, p.frontmatter.slug);
-            p.frontmatter.slug.clone()
-        }).collect();
+    let slug_clone = slug.clone();
+    let db_post: Option<DbPost> = tokio::task::block_in_place(|| {
+        tokio::runtime::Handle::current().block_on(async {
+            sqlx::query_as::<_, DbPost>(
+                "SELECT * FROM posts WHERE slug = ?"
+            )
+            .bind(&slug_clone)
+            .fetch_optional(&pool)
+            .await
+            .ok()
+            .flatten()
+        })
+    });
 
-        locale_slugs.insert(locale.to_string(), slugs);
-    }
+    match db_post {
+        Some(db_post) => {
+            let content = db_post.content(&locale).to_string();
+            let html_content = render_markdown(&content);
 
-    // Only build paths that exist for each locale
-    let all_paths: Vec<String> = locale_slugs.values()
-        .flatten()
-        .map(|s| s.clone())
-        .collect::<std::collections::HashSet<_>>()
-        .into_iter()
-        .collect();
-
-    BuildPaths {
-        paths: all_paths,
-        extra: ().into(),
+            Post {
+                frontmatter: PostFrontmatter {
+                    title: db_post.title(&locale).to_string(),
+                    slug: db_post.slug.clone(),
+                    date: db_post.date.clone(),
+                    status: db_post.status.clone(),
+                    excerpt: db_post.excerpt(&locale).to_string(),
+                    tags: db_post.tags_vec(),
+                    image: db_post.image.clone(),
+                    seo: None,
+                },
+                content,
+                html_content,
+            }
+        }
+        None => {
+            Post {
+                frontmatter: PostFrontmatter {
+                    title: "Post not found".to_string(),
+                    slug: slug.clone(),
+                    date: String::new(),
+                    status: "draft".to_string(),
+                    excerpt: "The requested post could not be found.".to_string(),
+                    tags: vec![],
+                    image: None,
+                    seo: None,
+                },
+                content: "Post not found.".to_string(),
+                html_content: "<p>The requested post could not be found.</p>".to_string(),
+            }
+        }
     }
 }
 
@@ -159,6 +186,7 @@ pub fn get_template<G: Html>() -> Template<G> {
     Template::build("blog/posts")
         .build_paths_fn(get_build_paths)
         .build_state_fn(get_build_state)
+        .incremental_generation()
         .head(head)
         .view_with_unreactive_state(BlogPostPage)
         .build()

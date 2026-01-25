@@ -1,10 +1,12 @@
+#[cfg(engine)]
+mod admin;
 mod components;
 mod models;
 mod templates;
 
 use perseus::prelude::*;
 
-#[perseus::main(perseus_axum::dflt_server)]
+#[perseus::main(crate::admin::server::get_server)]
 pub fn main<G: Html>() -> PerseusApp<G> {
     PerseusApp::new()
         .template(crate::templates::index::get_template())
