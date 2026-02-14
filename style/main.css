@@ -535,7 +535,9 @@ body::before {
   transform: scale(1.05);
 }
 .project-image {
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
 }
 
 /* Animations */
@@ -601,6 +603,7 @@ main {
 
 .blog-card {
   animation: slideInFromRight 0.3s ease-out backwards;
+  text-decoration: none !important;
 }
 
 .blog-card:nth-child(1) {
@@ -680,7 +683,8 @@ main {
   list-style-type: none;
 }
 
-ul.flex, ul.inline-flex {
+ul.flex,
+ul.inline-flex {
   list-style-type: none;
 }
 
@@ -795,7 +799,11 @@ ul.flex, ul.inline-flex {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   border-radius: 0.5rem 0.5rem 0 0;
 }
 

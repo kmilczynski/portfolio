@@ -92,10 +92,3 @@ pub struct UpdatePostForm {
 pub struct LoginForm {
     pub password: String,
 }
-
-#[derive(Debug, Clone, sqlx::FromRow)]
-pub struct AdminSession {
-    pub id: String,
-    pub created_at: String,
-    pub expires_at: String,
-}

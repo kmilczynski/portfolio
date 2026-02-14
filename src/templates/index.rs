@@ -1,15 +1,11 @@
 use crate::components::back_to_top::BackToTop;
-use crate::components::blog_card::BlogSection;
 use crate::components::footer::Footer;
 use crate::components::hero::Hero;
 use crate::components::navbar::Navbar;
 use crate::components::skills::Skills;
 use crate::components::social_links::SocialLinks;
 use crate::components::timeline::Timeline;
-use crate::models::{
-    AboutSection, Experience, Post, SiteConfig, Skill,
-    SocialLinks as SocialLinksData,
-};
+use crate::models::{AboutSection, Experience, SiteConfig, Skill, SocialLinks as SocialLinksData};
 use perseus::prelude::*;
 use serde::{Deserialize, Serialize};
 use sycamore::prelude::*;
@@ -21,7 +17,6 @@ pub struct IndexState {
     pub social: SocialLinksData,
     pub skills: Vec<Skill>,
     pub experience: Vec<Experience>,
-    pub posts: Option<Vec<Post>>,
     pub site_title: String,
     pub site_description: String,
 }
@@ -31,7 +26,6 @@ fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
     let social = (*state.social.get()).clone();
     let skills = (*state.skills.get()).clone();
     let experience = (*state.experience.get()).clone();
-    let posts = (*state.posts.get()).clone();
 
     view! { cx,
         Navbar {}
@@ -43,8 +37,6 @@ fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
                 Skills(skills=skills)
                 Timeline(experience=experience)
             }
-
-            BlogSection(posts=posts)
         }
 
         Footer {}
@@ -70,20 +62,14 @@ pub fn get_template<G: Html>() -> Template<G> {
 
 #[engine_only_fn]
 async fn get_build_state(info: StateGeneratorInfo<()>) -> IndexState {
-    use crate::models::post::loader;
-    use std::env;
-
-    let site_config = SiteConfig::load_for_locale(&info.locale).expect("Failed to load site config");
-
-    let posts_dir = env::current_dir().unwrap().join("posts");
-    let posts = loader::load_all_posts_for_locale(&posts_dir, Some(&info.locale)).ok();
+    let site_config =
+        SiteConfig::load_for_locale(&info.locale).expect("Failed to load site config");
 
     IndexState {
         about: site_config.about,
         social: site_config.social,
         skills: site_config.skills,
         experience: site_config.experience,
-        posts,
         site_title: site_config.site.title,
         site_description: site_config.site.description,
     }

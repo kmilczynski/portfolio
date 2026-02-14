@@ -1,7 +1,7 @@
 use crate::components::icons::IconArrowRight;
 use crate::models::Post;
-use sycamore::prelude::*;
 use perseus::prelude::*;
+use sycamore::prelude::*;
 
 #[derive(Prop)]
 pub struct BlogCardProps {
@@ -41,63 +41,6 @@ pub fn BlogCard<G: Html>(cx: Scope, props: BlogCardProps) -> View<G> {
                     }
                 }
             }
-        }
-    }
-}
-
-#[derive(Prop)]
-pub struct BlogSectionProps {
-    pub posts: Option<Vec<Post>>,
-}
-
-#[component]
-pub fn BlogSection<G: Html>(cx: Scope, props: BlogSectionProps) -> View<G> {
-    view! { cx,
-        section(id="blog", class="py-24") {
-            (match props.posts {
-                Some(ref posts) if !posts.is_empty() => {
-                    let display_posts: Vec<Post> = posts.iter().take(2).cloned().collect();
-                    let posts_signal = create_signal(cx, display_posts);
-
-                    view! { cx,
-                        div(class="bg-darker/30 border border-dark rounded-xl p-8") {
-                            div(class="flex items-center justify-between mb-8") {
-                                h2(class="text-2xl font-semibold text-cream") {
-                                    "Recent posts"
-                                }
-                                a(
-                                    href=link!(cx, "/blog"),
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-accent text-darkest font-mono text-sm rounded-lg hover:bg-accent-light transition-all duration-300 group"
-                                ) {
-                                    "See all"
-                                    span(class="group-hover:translate-x-1 transition-transform") {
-                                        IconArrowRight {}
-                                    }
-                                }
-                            }
-
-                            div(class="grid md:grid-cols-2 gap-6") {
-                                Indexed(
-                                    iterable=posts_signal,
-                                    view=|cx, post| view! { cx,
-                                        BlogCard(post=post)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                _ => {
-                    view! { cx,
-                        div(class="bg-darker/30 border border-dark rounded-xl p-8") {
-                            div(class="text-gray-500 text-center py-12") {
-                                p(class="text-lg") { "No posts yet." }
-                                p(class="text-sm mt-2") { "Check back soon for new content!" }
-                            }
-                        }
-                    }
-                }
-            })
         }
     }
 }
