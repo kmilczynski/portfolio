@@ -10,7 +10,7 @@ use crate::admin::db::{create_sqlite_pool, init_global_pool, DbPool};
 use crate::admin::handlers::{
     create_post_handler, dashboard_handler, delete_post_handler, edit_post_page_handler,
     login_handler, login_page_handler, logout_handler, new_post_page_handler, posts_list_handler,
-    update_post_handler,
+    update_post_handler, upload_image_handler,
 };
 use crate::admin::middleware::auth_middleware;
 
@@ -23,6 +23,7 @@ fn admin_routes(pool: DbPool) -> Router {
         .route("/posts/new", get(new_post_page_handler).post(create_post_handler))
         .route("/posts/:id/edit", get(edit_post_page_handler).post(update_post_handler))
         .route("/posts/:id/delete", post(delete_post_handler))
+        .route("/upload", post(upload_image_handler))
         .layer(middleware::from_fn_with_state(pool.clone(), auth_middleware))
         .with_state(pool)
 }
@@ -42,9 +43,14 @@ pub async fn get_server<M: perseus::stores::MutableStore + 'static, T: perseus::
     // Load .env file
     dotenv::dotenv().ok();
 
-    let addr: SocketAddr = format!("{}:{}", host, port)
-        .parse()
-        .expect("Invalid address provided");
+    let addr: SocketAddr = if host.contains(':') {
+        // IPv6 address needs brackets
+        format!("[{}]:{}", host, port)
+    } else {
+        format!("{}:{}", host, port)
+    }
+    .parse()
+    .expect("Invalid address provided");
 
     // Initialize database pool
     let pool = create_sqlite_pool()

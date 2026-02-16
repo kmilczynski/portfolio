@@ -9,7 +9,6 @@ use crate::models::Post;
 
 #[engine_only_fn]
 async fn get_build_paths() -> BuildPaths {
-    // Return empty paths - all posts are generated incrementally on request
     BuildPaths {
         paths: vec![],
         extra: ().into(),
@@ -187,6 +186,7 @@ pub fn get_template<G: Html>() -> Template<G> {
         .build_paths_fn(get_build_paths)
         .build_state_fn(get_build_state)
         .incremental_generation()
+        .revalidate_after("5s")
         .head(head)
         .view_with_unreactive_state(BlogPostPage)
         .build()

@@ -17,7 +17,7 @@ COPY static/ ./static/
 RUN npm run prod
 
 # Stage 2: Build Perseus application
-FROM rust:1.83-slim AS builder
+FROM rust:1.91-slim AS builder
 
 WORKDIR /app
 
@@ -26,14 +26,19 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
     curl \
+    binaryen \
     && rm -rf /var/lib/apt/lists/*
 
 # Install wasm-pack and perseus CLI
+RUN rustup default 1.91.0 && rustup target add wasm32-unknown-unknown
 RUN cargo install wasm-pack
-RUN cargo install perseus-cli --version 0.4.2
+RUN cargo install wasm-bindgen-cli --version 0.2.106
+RUN cargo install perseus-cli --locked
 
 # Copy Cargo files
 COPY Cargo.toml Cargo.lock ./
+COPY migrations/ ./migrations
+COPY translations ./translations
 COPY .cargo/ ./.cargo/
 
 # Copy source code
@@ -63,14 +68,22 @@ COPY --from=builder /app/pkg/ ./pkg/
 # Copy static assets
 COPY --from=builder /app/static/ ./static/
 
+# Copy translations
+COPY --from=builder /app/translations/ ./translations/
+
 # Copy content files
 COPY --from=builder /app/src/content/ ./src/content/
+
+# Copy migrations and create data directory for SQLite
+COPY --from=builder /app/migrations/ ./migrations/
+RUN mkdir -p ./data
 
 # Expose port (adjust if needed)
 EXPOSE 8080
 
 # Set environment variables
 ENV PERSEUS_STANDALONE=true
+ENV PERSEUS_HOST=::
 ENV RUST_LOG=info
 
 # Run the server

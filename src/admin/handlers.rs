@@ -1,7 +1,7 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Multipart, Path, State},
     http::StatusCode,
-    response::{Html, IntoResponse, Redirect, Response},
+    response::{Html, IntoResponse, Json, Redirect, Response},
     Form,
 };
 use axum_extra::extract::cookie::{Cookie, CookieJar, SameSite};
@@ -510,8 +510,6 @@ fn post_form(post: Option<&DbPost>, error: Option<&str>) -> String {
     let date = post.map(|p| &p.date as &str).unwrap_or("");
     let status = post.map(|p| &p.status as &str).unwrap_or("draft");
     let tags = post.map(|p| &p.tags as &str).unwrap_or("[]");
-    let image = post.and_then(|p| p.image.as_deref()).unwrap_or("");
-
     let draft_selected = if status == "draft" { "selected" } else { "" };
     let published_selected = if status == "published" { "selected" } else { "" };
 
@@ -542,10 +540,6 @@ fn post_form(post: Option<&DbPost>, error: Option<&str>) -> String {
                                 <option value="draft" {draft_selected}>Draft</option>
                                 <option value="published" {published_selected}>Published</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="admin-label" for="image">Image URL (optional)</label>
-                            <input type="text" id="image" name="image" value="{image}" class="admin-input" placeholder="/images/post.jpg">
                         </div>
                         <div class="form-grid-full">
                             <label class="admin-label" for="tags">Tags (JSON array)</label>
@@ -597,6 +591,109 @@ fn post_form(post: Option<&DbPost>, error: Option<&str>) -> String {
                     <a href="/admin/posts" class="admin-btn admin-btn-outline">Cancel</a>
                 </div>
             </form>
+
+            <!-- Image Upload -->
+            <div class="section-card" style="margin-top: 1.5rem;">
+                <h2 class="section-title">Upload Image</h2>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Upload an image and the markdown will be copied to your clipboard. Paste it into any content field.</p>
+                <div style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="admin-label" for="upload_file">Choose image</label>
+                        <input type="file" id="upload_file" accept="image/*" class="admin-input" style="padding: 0.5rem;">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="admin-label" for="custom_name">Custom filename (optional)</label>
+                        <input type="text" id="custom_name" class="admin-input" placeholder="my-image-name">
+                    </div>
+                    <button type="button" id="upload_btn" class="admin-btn" onclick="uploadImage()" style="white-space: nowrap;">Upload</button>
+                </div>
+                <div id="upload_status" style="margin-top: 0.75rem; font-size: 0.875rem; display: none;"></div>
+                <div id="upload_result" style="margin-top: 0.75rem; display: none;">
+                    <label class="admin-label">Markdown (click to copy)</label>
+                    <div id="upload_markdown" onclick="copyMarkdown()" style="background: #0f0f0f; border: 1px solid #323232; border-radius: 0.5rem; padding: 0.75rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #34d399; cursor: pointer; word-break: break-all;"></div>
+                </div>
+                <div id="upload_preview" style="margin-top: 0.75rem; display: none;">
+                    <img id="upload_preview_img" style="max-width: 100%; max-height: 200px; border-radius: 0.5rem; border: 1px solid #323232;">
+                </div>
+            </div>
+
+            <script>
+                async function uploadImage() {{
+                    const fileInput = document.getElementById('upload_file');
+                    const status = document.getElementById('upload_status');
+                    const result = document.getElementById('upload_result');
+                    const preview = document.getElementById('upload_preview');
+                    const btn = document.getElementById('upload_btn');
+
+                    if (!fileInput.files.length) {{
+                        status.style.display = 'block';
+                        status.style.color = '#f87171';
+                        status.textContent = 'Please select a file first.';
+                        return;
+                    }}
+
+                    btn.disabled = true;
+                    btn.textContent = 'Uploading...';
+                    status.style.display = 'block';
+                    status.style.color = '#9ca3af';
+                    status.textContent = 'Uploading...';
+
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    const customName = document.getElementById('custom_name').value.trim();
+                    if (customName) {{
+                        formData.append('custom_name', customName);
+                    }}
+
+                    try {{
+                        const resp = await fetch('/admin/upload', {{
+                            method: 'POST',
+                            body: formData
+                        }});
+                        const data = await resp.json();
+
+                        if (data.error) {{
+                            status.style.color = '#f87171';
+                            status.textContent = data.error;
+                            result.style.display = 'none';
+                            preview.style.display = 'none';
+                        }} else {{
+                            const customName = document.getElementById('custom_name').value.trim();
+                            const altText = customName || fileInput.files[0].name;
+                            const md = '![' + altText + '](' + data.url + ')';
+                            document.getElementById('upload_markdown').textContent = md;
+                            result.style.display = 'block';
+                            preview.style.display = 'block';
+                            document.getElementById('upload_preview_img').src = data.url;
+
+                            try {{
+                                await navigator.clipboard.writeText(md);
+                                status.style.color = '#4ade80';
+                                status.textContent = 'Uploaded! Markdown copied to clipboard.';
+                            }} catch {{
+                                status.style.color = '#4ade80';
+                                status.textContent = 'Uploaded! Click the markdown below to copy.';
+                            }}
+                        }}
+                    }} catch (e) {{
+                        status.style.color = '#f87171';
+                        status.textContent = 'Upload failed: ' + e.message;
+                    }}
+
+                    btn.disabled = false;
+                    btn.textContent = 'Upload';
+                }}
+
+                function copyMarkdown() {{
+                    const md = document.getElementById('upload_markdown').textContent;
+                    navigator.clipboard.writeText(md).then(() => {{
+                        const status = document.getElementById('upload_status');
+                        status.style.display = 'block';
+                        status.style.color = '#4ade80';
+                        status.textContent = 'Copied to clipboard!';
+                    }});
+                }}
+            </script>
         </div>"#,
         title = title,
         action = action,
@@ -605,7 +702,6 @@ fn post_form(post: Option<&DbPost>, error: Option<&str>) -> String {
         date = encode_text(date),
         draft_selected = draft_selected,
         published_selected = published_selected,
-        image = encode_text(image),
         tags = encode_text(tags),
         title_pl = encode_text(title_pl),
         excerpt_pl = encode_text(excerpt_pl),
@@ -738,4 +834,96 @@ pub async fn delete_post_handler(
         .await;
 
     Redirect::to("/admin/posts").into_response()
+}
+
+pub async fn upload_image_handler(mut multipart: Multipart) -> Response {
+    let upload_dir = std::path::Path::new("static/img/uploads");
+    if !upload_dir.exists() {
+        if let Err(e) = std::fs::create_dir_all(upload_dir) {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("Failed to create upload dir: {}", e) })),
+            )
+                .into_response();
+        }
+    }
+
+    let mut file_bytes: Option<(String, Vec<u8>)> = None;
+    let mut custom_name: Option<String> = None;
+
+    while let Ok(Some(field)) = multipart.next_field().await {
+        match field.name() {
+            Some("custom_name") => {
+                custom_name = field.text().await.ok().filter(|s| !s.trim().is_empty());
+            }
+            Some("file") => {
+                let original_name = field
+                    .file_name()
+                    .unwrap_or("upload")
+                    .to_string();
+                if let Ok(b) = field.bytes().await {
+                    file_bytes = Some((original_name, b.to_vec()));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let Some((original_name, bytes)) = file_bytes else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "error": "No file provided" })),
+        )
+            .into_response();
+    };
+
+    {
+        let ext = std::path::Path::new(&original_name)
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("bin")
+            .to_lowercase();
+
+        let allowed = ["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"];
+        if !allowed.contains(&ext.as_str()) {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": format!("File type .{} not allowed", ext) })),
+            )
+                .into_response();
+        }
+
+        if bytes.len() > 10 * 1024 * 1024 {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": "File too large (max 10MB)" })),
+            )
+                .into_response();
+        }
+
+        let filename = if let Some(ref name) = custom_name {
+            let sanitized: String = name.chars()
+                .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+                .collect();
+            format!("{}.{}", sanitized, ext)
+        } else {
+            format!("{}_{}.{}",
+                chrono::Utc::now().format("%Y%m%d_%H%M%S"),
+                uuid::Uuid::new_v4().to_string().split('-').next().unwrap_or("x"),
+                ext
+            )
+        };
+
+        let filepath = upload_dir.join(&filename);
+        if let Err(e) = std::fs::write(&filepath, &bytes) {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("Failed to save file: {}", e) })),
+            )
+                .into_response();
+        }
+
+        let url = format!("/.perseus/static/img/uploads/{}", filename);
+        return Json(serde_json::json!({ "url": url })).into_response();
+    }
 }
