@@ -45,17 +45,72 @@ fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
 }
 
 #[engine_only_fn]
-fn head(cx: Scope) -> View<SsrNode> {
+fn head(cx: Scope, state: IndexState) -> View<SsrNode> {
+    let base_url = "https://kmilczynski.byst.re";
+    let title = create_ref(cx, state.site_title.clone());
+    let description = create_ref(cx, state.site_description.clone());
+    let og_image = create_ref(cx, format!("{}/og-default.png", base_url));
+    let feed_url = create_ref(cx, format!("{}/feed.xml", base_url));
+
+    // JSON-LD for Person/Organization
+    let json_ld = create_ref(cx, format!(
+        r#"{{
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Kacper Milczyński",
+            "jobTitle": "Software Developer",
+            "url": "{}",
+            "sameAs": [
+                "{}",
+                "{}"
+            ],
+            "email": "{}",
+            "description": "{}",
+            "knowsAbout": ["PHP", "TypeScript", "JavaScript", "Rust", "Symfony", "Nest.js", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Docker", "AWS", "GCP"],
+            "alumniOf": {{
+                "@type": "Organization",
+                "name": "Software Development"
+            }}
+        }}"#,
+        base_url,
+        state.social.github,
+        state.social.linkedin,
+        state.social.email,
+        description.replace('"', "\\\"")
+    ));
+
     view! { cx,
-        title { "Kacper Milczyński | Software Developer" }
-        meta(name="description", content="Software developer specializing in backend systems, real-time applications, and exploring the Rust ecosystem.")
+        title { (*title) }
+        meta(name="description", content=description)
+
+        // Open Graph
+        meta(property="og:type", content="website")
+        meta(property="og:title", content=title)
+        meta(property="og:description", content=description)
+        meta(property="og:url", content=base_url)
+        meta(property="og:image", content=og_image)
+
+        // Twitter Card
+        meta(name="twitter:card", content="summary_large_image")
+        meta(name="twitter:title", content=title)
+        meta(name="twitter:description", content=description)
+        meta(name="twitter:image", content=og_image)
+
+        // Canonical
+        link(rel="canonical", href=base_url)
+
+        // RSS Feed
+        link(rel="alternate", type="application/rss+xml", title="Kacper's Blog", href=feed_url)
+
+        // JSON-LD
+        script(type="application/ld+json", dangerously_set_inner_html=json_ld)
     }
 }
 
 pub fn get_template<G: Html>() -> Template<G> {
     Template::build("index")
         .build_state_fn(get_build_state)
-        .head(head)
+        .head_with_state(head)
         .view_with_state(index_page)
         .build()
 }

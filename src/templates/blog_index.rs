@@ -121,9 +121,32 @@ fn blog_index_page<G: Html>(cx: Scope, state: &'a BlogIndexStateRx) -> View<G> {
 
 #[engine_only_fn]
 fn head(cx: Scope) -> View<SsrNode> {
+    let base_url = "https://kmilczynski.byst.re";
+    let title = "Blog | Kacper";
+    let description = "Read my thoughts on software development, Rust, web technologies, and more.";
+
     view! { cx,
-        title { "Blog | Kacper" }
-        meta(name="description", content="Read my thoughts on software development, Rust, web technologies, and more.")
+        title { (title) }
+        meta(name="description", content=description)
+
+        // Open Graph
+        meta(property="og:type", content="website")
+        meta(property="og:title", content=title)
+        meta(property="og:description", content=description)
+        meta(property="og:url", content=&format!("{}/blog", base_url))
+        meta(property="og:image", content=&format!("{}/og-default.png", base_url))
+
+        // Twitter Card
+        meta(name="twitter:card", content="summary_large_image")
+        meta(name="twitter:title", content=title)
+        meta(name="twitter:description", content=description)
+        meta(name="twitter:image", content=&format!("{}/og-default.png", base_url))
+
+        // Canonical
+        link(rel="canonical", href=&format!("{}/blog", base_url))
+
+        // RSS Feed
+        link(rel="alternate", type="application/rss+xml", title="Kacper's Blog", href=&format!("{}/feed.xml", base_url))
     }
 }
 

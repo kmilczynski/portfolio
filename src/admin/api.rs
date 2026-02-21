@@ -1,9 +1,10 @@
 use axum::{
     extract::{Path, Query, State},
-    http::StatusCode,
-    response::IntoResponse,
+    http::{header, StatusCode},
+    response::{IntoResponse, Response},
     Json,
 };
+use chrono::TimeZone;
 use pulldown_cmark::{html, Options, Parser};
 use serde::Deserialize;
 
@@ -109,4 +110,172 @@ pub async fn get_post_api(
         }
         None => (StatusCode::NOT_FOUND, Json::<Option<PostApiResponse>>(None)).into_response(),
     }
+}
+
+pub async fn rss_feed(State(pool): State<DbPool>) -> Response<String> {
+    let posts: Vec<DbPost> = sqlx::query_as(
+        "SELECT * FROM posts WHERE status = 'published' ORDER BY date DESC LIMIT 20"
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap_or_default();
+
+    let base_url = "https://kmilczynski.byst.re";
+    let now = chrono::Utc::now().to_rfc2822();
+
+    let mut items = String::new();
+    for post in posts {
+        let title = post.title("en");
+        let description = post.excerpt("en");
+        let link = format!("{}/blog/{}", base_url, post.slug);
+        let pub_date = chrono::NaiveDate::parse_from_str(&post.date, "%Y-%m-%d")
+            .ok()
+            .and_then(|d| d.and_hms_opt(12, 0, 0))
+            .map(|dt| chrono::Utc.from_utc_datetime(&dt).to_rfc2822())
+            .unwrap_or_else(|| now.clone());
+
+        items.push_str(&format!(
+            r#"    <item>
+      <title>{}</title>
+      <link>{}</link>
+      <guid>{}</guid>
+      <pubDate>{}</pubDate>
+      <description>{}</description>
+    </item>
+"#,
+            escape_xml(title),
+            link,
+            link,
+            pub_date,
+            escape_xml(description)
+        ));
+    }
+
+    let rss = format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kacper Milczyński | Software Developer</title>
+    <link>{}/blog</link>
+    <description>Software developer specializing in backend systems, real-time applications, and exploring the Rust ecosystem.</description>
+    <language>en</language>
+    <lastBuildDate>{}</lastBuildDate>
+    <atom:link href="{}/feed.xml" rel="self" type="application/rss+xml"/>
+{}  </channel>
+</rss>"#,
+        base_url, now, base_url, items
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/rss+xml; charset=utf-8")
+        .body(rss)
+        .unwrap()
+}
+
+pub async fn sitemap_xml(State(pool): State<DbPool>) -> Response<String> {
+    let posts: Vec<DbPost> = sqlx::query_as(
+        "SELECT * FROM posts WHERE status = 'published' ORDER BY date DESC"
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap_or_default();
+
+    let base_url = "https://kmilczynski.byst.re";
+
+    let mut urls = String::new();
+
+    // Static pages
+    urls.push_str(&format!(
+        r#"  <url>
+    <loc>{}/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{}/en</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{}/projects</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>{}/en/projects</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>{}/blog</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>{}/en/blog</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+"#,
+        base_url, base_url, base_url, base_url, base_url, base_url
+    ));
+
+    // Blog posts (Polish and English versions)
+    for post in posts {
+        let lastmod = post.updated_at.split('T').next().unwrap_or(&post.date);
+
+        urls.push_str(&format!(
+            r#"  <url>
+    <loc>{}/blog/{}</loc>
+    <lastmod>{}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>{}/en/blog/{}</loc>
+    <lastmod>{}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+"#,
+            base_url, post.slug, lastmod, base_url, post.slug, lastmod
+        ));
+    }
+
+    let sitemap = format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{}
+</urlset>"#,
+        urls
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/xml; charset=utf-8")
+        .body(sitemap)
+        .unwrap()
+}
+
+pub async fn robots_txt() -> Response<String> {
+    let robots = r#"User-agent: *
+Allow: /
+
+Sitemap: https://kmilczynski.byst.re/sitemap.xml
+"#;
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/plain; charset=utf-8")
+        .body(robots.to_string())
+        .unwrap()
+}
+
+fn escape_xml(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
 }

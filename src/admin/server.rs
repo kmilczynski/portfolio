@@ -5,7 +5,7 @@ use axum::{
 };
 use std::net::SocketAddr;
 
-use crate::admin::api::{get_post_api, list_posts_api};
+use crate::admin::api::{get_post_api, list_posts_api, rss_feed, sitemap_xml, robots_txt};
 use crate::admin::db::{create_sqlite_pool, init_global_pool, DbPool};
 use crate::admin::handlers::{
     create_post_handler, dashboard_handler, delete_post_handler, edit_post_page_handler,
@@ -64,9 +64,16 @@ pub async fn get_server<M: perseus::stores::MutableStore + 'static, T: perseus::
     let perseus_router = perseus_axum::get_router(turbine, opts).await;
 
     // Build the complete app
+    let seo_routes = Router::new()
+        .route("/feed.xml", get(rss_feed))
+        .route("/sitemap.xml", get(sitemap_xml))
+        .with_state(pool.clone());
+
     let app = Router::new()
         .nest("/admin", admin_routes(pool.clone()))
-        .nest("/api", api_routes(pool))
+        .nest("/api", api_routes(pool.clone()))
+        .route("/robots.txt", get(robots_txt))
+        .merge(seo_routes)
         .merge(perseus_router);
 
     tracing::info!("Server running on http://{}", addr);

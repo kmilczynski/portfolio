@@ -99,9 +99,89 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
 }
 
 #[engine_only_fn]
-fn head(cx: Scope) -> View<SsrNode> {
+fn head(cx: Scope, state: Post) -> View<SsrNode> {
+    let base_url = "https://kmilczynski.byst.re";
+    let post_url = create_ref(cx, format!("{}/blog/{}", base_url, state.frontmatter.slug));
+    let title = create_ref(cx, format!("{} | Kacper", state.frontmatter.title));
+    let description = create_ref(cx, state.frontmatter.excerpt.clone());
+    let default_og_image = format!("{}/og-default.png", base_url);
+    let og_image = create_ref(cx, state.frontmatter.image
+        .as_ref()
+        .map(|img| format!("{}/{}", base_url, img))
+        .unwrap_or_else(|| default_og_image.clone()));
+    let pub_date = create_ref(cx, state.frontmatter.date.clone());
+
+    // JSON-LD structured data
+    let author_json = r#"{
+        "@type": "Person",
+        "name": "Kacper Milczyński",
+        "url": "https://kmilczynski.byst.re",
+        "sameAs": [
+            "https://github.com/kmilczynski",
+            "https://linkedin.com/in/kacpermilczynski"
+        ]
+    }"#;
+
+    let image_json = state.frontmatter.image
+        .as_ref()
+        .map(|img| format!(r#","image": {{"@type": "ImageObject", "url": "{}/{}"}}"#, base_url, img))
+        .unwrap_or_default();
+
+    let json_ld = create_ref(cx, format!(
+        r#"{{
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": "{}",
+            "description": "{}",
+            "datePublished": "{}",
+            "dateModified": "{}",
+            "author": {},
+            "publisher": {{
+                "@type": "Person",
+                "name": "Kacper Milczyński",
+                "url": "{}"
+            }},
+            "url": "{}",
+            "mainEntityOfPage": {{
+                "@type": "WebPage",
+                "@id": "{}"
+            }}{}
+        }}"#,
+        state.frontmatter.title.replace('"', "\\\""),
+        description.replace('"', "\\\""),
+        state.frontmatter.date,
+        state.frontmatter.date,
+        author_json,
+        base_url,
+        post_url,
+        post_url,
+        image_json
+    ));
+
     view! { cx,
-        title { "Blog Post | Kacper" }
+        title { (*title) }
+        meta(name="description", content=description)
+
+        // Open Graph
+        meta(property="og:type", content="article")
+        meta(property="og:title", content=title)
+        meta(property="og:description", content=description)
+        meta(property="og:url", content=post_url)
+        meta(property="og:image", content=og_image)
+        meta(property="article:published_time", content=pub_date)
+        meta(property="article:author", content="Kacper Milczyński")
+
+        // Twitter Card
+        meta(name="twitter:card", content="summary_large_image")
+        meta(name="twitter:title", content=title)
+        meta(name="twitter:description", content=description)
+        meta(name="twitter:image", content=og_image)
+
+        // Canonical
+        link(rel="canonical", href=post_url)
+
+        // JSON-LD
+        script(type="application/ld+json", dangerously_set_inner_html=json_ld)
     }
 }
 
@@ -187,7 +267,7 @@ pub fn get_template<G: Html>() -> Template<G> {
         .build_state_fn(get_build_state)
         .incremental_generation()
         .revalidate_after("5s")
-        .head(head)
+        .head_with_state(head)
         .view_with_unreactive_state(BlogPostPage)
         .build()
 }
