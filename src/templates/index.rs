@@ -19,6 +19,7 @@ pub struct IndexState {
     pub experience: Vec<Experience>,
     pub site_title: String,
     pub site_description: String,
+    pub locale: String,
 }
 #[auto_scope]
 fn index_page<G: Html>(cx: Scope, state: &'a IndexStateRx) -> View<G> {
@@ -49,6 +50,11 @@ fn head(cx: Scope, state: IndexState) -> View<SsrNode> {
     let base_url = "https://kmilczynski.byst.re";
     let title = create_ref(cx, state.site_title.clone());
     let description = create_ref(cx, state.site_description.clone());
+    let canonical = create_ref(cx, if state.locale == "pl" {
+        base_url.to_string()
+    } else {
+        format!("{}/{}/", base_url, state.locale)
+    });
     let og_image = create_ref(cx, format!("{}/og-default.png", base_url));
     let feed_url = create_ref(cx, format!("{}/feed.xml", base_url));
 
@@ -97,7 +103,7 @@ fn head(cx: Scope, state: IndexState) -> View<SsrNode> {
         meta(name="twitter:image", content=og_image)
 
         // Canonical
-        link(rel="canonical", href=base_url)
+        link(rel="canonical", href=canonical)
 
         // RSS Feed
         link(rel="alternate", type="application/rss+xml", title="Kacper's Blog", href=feed_url)
@@ -127,5 +133,6 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> IndexState {
         experience: site_config.experience,
         site_title: site_config.site.title,
         site_description: site_config.site.description,
+        locale: info.locale.to_string(),
     }
 }

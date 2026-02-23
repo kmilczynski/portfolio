@@ -19,7 +19,8 @@ pub fn SocialLinks<G: Html>(cx: Scope, props: SocialLinksProps) -> View<G> {
                 href=github,
                 class="text-gray-500 hover:text-accent-light transition-colors",
                 target="_blank",
-                rel="noopener noreferrer"
+                rel="noopener noreferrer",
+                aria-label="GitHub"
             ) {
                 IconGithub {}
             }
@@ -27,13 +28,15 @@ pub fn SocialLinks<G: Html>(cx: Scope, props: SocialLinksProps) -> View<G> {
                 href=linkedin,
                 class="text-gray-500 hover:text-accent-light transition-colors",
                 target="_blank",
-                rel="noopener noreferrer"
+                rel="noopener noreferrer",
+                aria-label="LinkedIn"
             ) {
                 IconLinkedin {}
             }
             a(
                 href=email,
-                class="text-gray-500 hover:text-accent-light transition-colors"
+                class="text-gray-500 hover:text-accent-light transition-colors",
+                aria-label="Email"
             ) {
                 IconEmail {}
             }
