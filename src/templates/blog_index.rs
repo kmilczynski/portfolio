@@ -5,6 +5,7 @@ use sycamore::prelude::*;
 use crate::components::back_to_top::BackToTop;
 use crate::components::blog_card::BlogCard;
 use crate::components::footer::Footer;
+use crate::components::icons::IconRss;
 use crate::components::navbar::Navbar;
 use crate::models::Post;
 
@@ -84,11 +85,30 @@ fn blog_index_page<G: Html>(cx: Scope, state: &'a BlogIndexStateRx) -> View<G> {
         main(class="max-w-5xl mx-auto px-6 pt-32 pb-20") {
             // Header
             header(class="mb-12") {
-                h1(class="text-4xl md:text-5xl font-semibold text-cream mb-4 tracking-tight") {
-                    "Blog"
-                }
-                p(class="text-gray-500 text-lg") {
-                    (format!("{} post{}", post_count, if post_count != 1 { "s" } else { "" }))
+                div(class="flex items-start justify-between gap-4") {
+                    div {
+                        h1(class="text-4xl md:text-5xl font-semibold text-cream mb-4 tracking-tight") {
+                            "Blog"
+                        }
+                        p(class="text-gray-500 text-lg") {
+                            (format!("{} post{}", post_count, if post_count != 1 { "s" } else { "" }))
+                        }
+                    }
+                    button(
+                        class="flex items-center gap-2 px-3 py-2 mt-2 text-sm text-orange-400 border border-orange-400/30 rounded-lg hover:bg-orange-400/10 transition-colors shrink-0 cursor-pointer",
+                        title="Subscribe via RSS",
+                        on:click=|_| {
+                            #[cfg(client)]
+                            {
+                                let window = web_sys::window().unwrap();
+                                let origin = window.location().origin().unwrap_or_default();
+                                let _ = window.open_with_url_and_target(&format!("{}/feed.xml", origin), "_blank");
+                            }
+                        }
+                    ) {
+                        IconRss {}
+                        span { "RSS" }
+                    }
                 }
             }
 

@@ -642,6 +642,44 @@ main {
   width: 100%;
 }
 
+/* Button reset */
+button {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+/* Cursor */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Flex shrink */
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Extra spacing */
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Orange accent (RSS button) */
+.text-orange-400 {
+  color: #fb923c;
+}
+.border-orange-400\/30 {
+  border-color: rgba(251, 146, 60, 0.3);
+}
+.hover\:bg-orange-400\/10:hover {
+  background-color: rgba(251, 146, 60, 0.1);
+}
+
 /* Utility */
 .pl-8 {
   padding-left: 2rem;
