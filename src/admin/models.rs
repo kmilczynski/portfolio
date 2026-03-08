@@ -16,6 +16,7 @@ pub struct DbPost {
     pub image: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    pub views: i64,
 }
 
 impl DbPost {
@@ -56,6 +57,7 @@ pub struct PostApiResponse {
     pub status: String,
     pub tags: Vec<String>,
     pub image: Option<String>,
+    pub views: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

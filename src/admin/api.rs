@@ -66,6 +66,7 @@ pub async fn list_posts_api(
                 status: post.status.clone(),
                 tags: post.tags_vec(),
                 image: post.image.clone(),
+                views: post.views,
             }
         })
         .collect();
@@ -105,6 +106,7 @@ pub async fn get_post_api(
                 status: post.status.clone(),
                 tags: post.tags_vec(),
                 image: post.image.clone(),
+                views: post.views,
             };
             (StatusCode::OK, Json(Some(response))).into_response()
         }

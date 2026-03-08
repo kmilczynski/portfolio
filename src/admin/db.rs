@@ -44,14 +44,26 @@ pub fn get_pool() -> Option<&'static DbPool> {
 }
 
 async fn run_migrations(pool: &DbPool) -> Result<(), sqlx::Error> {
-    // Read migration file
+    // Run initial schema migration
     let migration_sql = include_str!("../../migrations/001_create_tables.sql");
-
-    // Execute each statement separately
     for statement in migration_sql.split(';') {
         let stmt = statement.trim();
         if !stmt.is_empty() {
             sqlx::query(stmt).execute(pool).await?;
+        }
+    }
+
+    // Run additive migrations, ignoring "duplicate column" errors (already applied)
+    let views_migration = include_str!("../../migrations/002_add_views.sql");
+    for statement in views_migration.split(';') {
+        let stmt = statement.trim();
+        if !stmt.is_empty() {
+            if let Err(e) = sqlx::query(stmt).execute(pool).await {
+                let msg = e.to_string();
+                if !msg.contains("duplicate column name") {
+                    return Err(e);
+                }
+            }
         }
     }
 

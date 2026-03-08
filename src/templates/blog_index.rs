@@ -60,6 +60,7 @@ async fn get_request_state(
                 },
                 content,
                 html_content,
+                views: db_post.views,
             }
         })
         .collect();

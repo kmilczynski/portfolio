@@ -41,6 +41,7 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
                 },
                 content: "Database error.".to_string(),
                 html_content: "<p>Could not connect to database.</p>".to_string(),
+                views: 0,
             };
         }
     };
@@ -48,14 +49,24 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
     let slug_clone = slug.clone();
     let db_post: Option<DbPost> = tokio::task::block_in_place(|| {
         tokio::runtime::Handle::current().block_on(async {
-            sqlx::query_as::<_, DbPost>(
+            let post = sqlx::query_as::<_, DbPost>(
                 "SELECT * FROM posts WHERE slug = ?"
             )
             .bind(&slug_clone)
             .fetch_optional(&pool)
             .await
             .ok()
-            .flatten()
+            .flatten();
+
+            if post.is_some() {
+                sqlx::query("UPDATE posts SET views = views + 1 WHERE slug = ?")
+                    .bind(&slug_clone)
+                    .execute(&pool)
+                    .await
+                    .ok();
+            }
+
+            post
         })
     });
 
@@ -77,6 +88,7 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
                 },
                 content,
                 html_content,
+                views: db_post.views + 1,
             }
         }
         None => {
@@ -93,6 +105,7 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
                 },
                 content: "Post not found.".to_string(),
                 html_content: "<p>The requested post could not be found.</p>".to_string(),
+                views: 0,
             }
         }
     }
@@ -192,6 +205,7 @@ fn BlogPostPage<G: Html>(cx: Scope, post: Post) -> View<G> {
     let html_content = create_ref(cx, post.html_content.clone());
     let date = create_ref(cx, post.frontmatter.date.clone());
     let title = create_ref(cx, post.frontmatter.title.clone());
+    let views = post.views;
 
     view! { cx,
         Navbar {}
@@ -217,6 +231,10 @@ fn BlogPostPage<G: Html>(cx: Scope, post: Post) -> View<G> {
                     span(class="text-gray-700") { "·" }
                     span(class="font-mono text-xs text-gray-600") {
                         (format!("{} min read", reading_time))
+                    }
+                    span(class="text-gray-700") { "·" }
+                    span(class="font-mono text-xs text-gray-600") {
+                        (format!("{} views", views))
                     }
                 }
 

@@ -24,6 +24,7 @@ pub struct Post {
     pub frontmatter: PostFrontmatter,
     pub content: String,
     pub html_content: String,
+    pub views: i64,
 }
 
 impl Post {
