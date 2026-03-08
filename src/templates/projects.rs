@@ -74,9 +74,29 @@ async fn get_build_state(info: StateGeneratorInfo<()>) -> ProjectsState {
 
 #[engine_only_fn]
 fn head(cx: Scope) -> View<SsrNode> {
+    let base_url = "https://kmilczynski.byst.re";
+    let title = "Projects | Kacper";
+    let description = "Explore my portfolio of web development projects, built with modern technologies like Rust, TypeScript, and more.";
+
     view! { cx,
-        title { "Projects | Kacper" }
-        meta(name="description", content="Explore my portfolio of web development projects, built with modern technologies like Rust, TypeScript, and more.")
+        title { (title) }
+        meta(name="description", content=description)
+
+        // Open Graph
+        meta(property="og:type", content="website")
+        meta(property="og:title", content=title)
+        meta(property="og:description", content=description)
+        meta(property="og:url", content=&format!("{}/projects", base_url))
+        meta(property="og:image", content=&format!("{}/og-default.png", base_url))
+
+        // Twitter Card
+        meta(name="twitter:card", content="summary_large_image")
+        meta(name="twitter:title", content=title)
+        meta(name="twitter:description", content=description)
+        meta(name="twitter:image", content=&format!("{}/og-default.png", base_url))
+
+        // Canonical
+        link(rel="canonical", href=&format!("{}/projects", base_url))
     }
 }
 

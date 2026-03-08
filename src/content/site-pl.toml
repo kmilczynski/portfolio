@@ -1,18 +1,18 @@
 [site]
-title = "Kacper | Deweloper Oprogramowania"
-description = "Portfolio Kacpera Milczyńskiego - Deweloper Oprogramowania"
+title = "Kacper | Software Developer"
+description = "Portfolio Kacpra Milczyńskiego - Software Developer"
 author = "Kacper"
 
 [social]
 github = "https://github.com/kmilczynski"
 linkedin = "https://linkedin.com/in/kacpermilczynski"
-email = "illadd@soon.com"
+email = "kacpermilczynski@gmail.com"
 
 [about]
 greeting = "Cześć, nazywam się"
 name = "Kacper"
 tagline = "Buduję rzeczy."
-bio = "Deweloper oprogramowania specjalizujący się w systemach backendowych, aplikacjach czasu rzeczywistego i eksploracji ekosystemu Rust. Obecnie skupiam się na budowaniu wydajnych aplikacji webowych z nowoczesnymi stosami technologicznymi."
+bio = "Deweloper oprogramowania specjalizujący się w systemach backendowych, aplikacjach czasu rzeczywistego i eksploracji ekosystemu Rust. Obecnie skupiam się na budowaniu wydajnych aplikacji webowych z nowoczesnymi technologiami."
 
 [[skills]]
 name = "Języki"
@@ -35,7 +35,7 @@ name = "Chmura"
 technologies = "AWS, GCP"
 
 [[skills]]
-name = "Kolejki komunikatów"
+name = "Kolejki wiadomości"
 technologies = "RabbitMQ, SQS"
 
 [[skills]]
@@ -44,7 +44,7 @@ technologies = "DDD, CQRS, Hexagonal, TDD"
 
 [[skills]]
 name = "Narzędzia"
-technologies = "Git, PHPUnit, xDebug, Linux"
+technologies = "Git, PHPUnit, Rector, PHPStan, PHP CS Fixer, xDebug, Claude"
 
 [[skills]]
 name = "IDE"
@@ -54,15 +54,15 @@ technologies = "PHPStorm, CursorAI, VSCodium"
 title = "PHP Developer"
 company = "Open Nexus Sp. z o.o."
 period = "Sie 2025 — Obecnie"
-description = "Praca nad przepisaniem systemu legacy, implementacja rozwiązań architektonicznych z wzorcami DDD i CQRS. Rozwijanie modularnego monolitu, utrzymanie starego systemu, naprawianie błędów i tworzenie nowych funkcjonalności."
-stack = "PHP 8.x, PHP 7.3, Symfony 7, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
+description = "Utrzymanie legacy systemu do zamówień publicznych. Optymalizacja zapytań do baz danych. Tworzenie nowych modułów oraz przepisywanie starego systemu na nowej architekturze."
+stack = "PHP 8.x, PHP 7.3, Symfony 7/8, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
 current = true
 
 [[experience]]
 title = "PHP/TypeScript Developer / DevOps"
 company = "Coraz Lepsza Firma"
 period = "Sty 2023 — Lip 2025"
-description = "Przepisałem system CRM i PHP API na TypeScript. Rozwijałem modularny monolit z architekturą DDD, utrzymywałem infrastrukturę AWS z Terraform, tworzyłem zaawansowane zapytania MongoDB."
+description = "Przepisanie systemu legacy CRM na nową technologię (PHP Symfony, później Typescript z Nest.js). Tworzenie integracji z zewnętrzym systemem do obsługi zgłoszeń klientów oraz z usługami Google."
 stack = "PHP 8.x, Symfony 7, TypeScript, Nest.js, MySQL, MongoDB, RabbitMQ, SQS, API Platform, PHPUnit, Docker, GitLab CI, AWS, Terraform"
 current = false
 
@@ -70,7 +70,7 @@ current = false
 title = "PHP Developer"
 company = "Satisfly"
 period = "Gru 2021 — Gru 2022"
-description = "Rozwijałem system integracji e-commerce z architekturą heksagonalną i TDD. Implementowałem autoryzację JWT, tworzyłem dokumentację API z API Platform."
+description = "Praca przy tworzeniu lejka danych dla klienta ecommerce. Integrator pomagał klientom z wymianą danych między systemami ecommerce np. Baselinker, Idosell czy Magento."
 stack = "PHP 8.x, Symfony 5, PostgreSQL, Redis, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI"
 current = false
 
@@ -78,6 +78,6 @@ current = false
 title = "Software Developer"
 company = "Questy"
 period = "Maj 2021 — Gru 2021"
-description = "Utrzymywałem systemy klientów, rozszerzałem integracje ERP, uczestniczyłem w code review i dyskusjach z klientami. Mentorowałem nowych deweloperów."
-stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, Systemy ERP"
+description = "Wdrażanie oraz utrzymywanie dedykowanego systemu CRM dla klientów. Modyfikacje systemu pod wymagania klienta, integracje z zewnętrzymi systemami ERP."
+stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, Systemy CRM"
 current = false

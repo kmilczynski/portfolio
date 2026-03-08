@@ -8,74 +8,180 @@ use crate::components::navbar::Navbar;
 use crate::models::Post;
 
 #[engine_only_fn]
+async fn get_build_paths() -> BuildPaths {
+    BuildPaths {
+        paths: vec![],
+        extra: ().into(),
+    }
+}
+
+#[engine_only_fn]
 async fn get_build_state(info: StateGeneratorInfo<()>) -> Post {
-    use crate::models::post::loader;
-    use std::env;
+    use crate::admin::db::get_pool;
+    use crate::admin::models::DbPost;
+    use crate::models::post::loader::render_markdown;
+    use crate::models::PostFrontmatter;
 
-    let posts_dir = env::current_dir().unwrap().join("posts");
+    let slug = info.path.clone();
+    let locale = info.locale.to_string();
 
-    match loader::load_post_by_slug_and_locale(&posts_dir, &info.path, &info.locale) {
-        Ok(post) => post,
-        Err(e) => {
-            eprintln!("Warning: Could not load post '{}' for locale '{}': {}. This post will be skipped.", info.path, info.locale, e);
-            // Return a placeholder post that indicates the content is not available
-            Post {
-                frontmatter: crate::models::post::PostFrontmatter {
-                    title: format!("Content not available in {}", info.locale),
-                    slug: info.path.clone(),
+    let pool = match get_pool() {
+        Some(pool) => pool.clone(),
+        None => {
+            return Post {
+                frontmatter: PostFrontmatter {
+                    title: "Database Error".to_string(),
+                    slug: slug.clone(),
                     date: String::new(),
                     status: "draft".to_string(),
-                    excerpt: format!("This post is not available in the {} locale.", info.locale),
+                    excerpt: "Could not connect to database.".to_string(),
                     tags: vec![],
                     image: None,
                     seo: None,
                 },
-                content: format!("This content is not available in the {} locale.", info.locale),
-                html_content: format!("<p>This content is not available in the {} locale.</p>", info.locale),
+                content: "Database error.".to_string(),
+                html_content: "<p>Could not connect to database.</p>".to_string(),
+            };
+        }
+    };
+
+    let slug_clone = slug.clone();
+    let db_post: Option<DbPost> = tokio::task::block_in_place(|| {
+        tokio::runtime::Handle::current().block_on(async {
+            sqlx::query_as::<_, DbPost>(
+                "SELECT * FROM posts WHERE slug = ?"
+            )
+            .bind(&slug_clone)
+            .fetch_optional(&pool)
+            .await
+            .ok()
+            .flatten()
+        })
+    });
+
+    match db_post {
+        Some(db_post) => {
+            let content = db_post.content(&locale).to_string();
+            let html_content = render_markdown(&content);
+
+            Post {
+                frontmatter: PostFrontmatter {
+                    title: db_post.title(&locale).to_string(),
+                    slug: db_post.slug.clone(),
+                    date: db_post.date.clone(),
+                    status: db_post.status.clone(),
+                    excerpt: db_post.excerpt(&locale).to_string(),
+                    tags: db_post.tags_vec(),
+                    image: db_post.image.clone(),
+                    seo: None,
+                },
+                content,
+                html_content,
+            }
+        }
+        None => {
+            Post {
+                frontmatter: PostFrontmatter {
+                    title: "Post not found".to_string(),
+                    slug: slug.clone(),
+                    date: String::new(),
+                    status: "draft".to_string(),
+                    excerpt: "The requested post could not be found.".to_string(),
+                    tags: vec![],
+                    image: None,
+                    seo: None,
+                },
+                content: "Post not found.".to_string(),
+                html_content: "<p>The requested post could not be found.</p>".to_string(),
             }
         }
     }
 }
 
 #[engine_only_fn]
-async fn get_build_paths() -> BuildPaths {
-    use crate::models::post::loader;
-    use std::env;
+fn head(cx: Scope, state: Post) -> View<SsrNode> {
+    let base_url = "https://kmilczynski.byst.re";
+    let post_url = create_ref(cx, format!("{}/blog/{}", base_url, state.frontmatter.slug));
+    let title = create_ref(cx, format!("{} | Kacper", state.frontmatter.title));
+    let description = create_ref(cx, state.frontmatter.excerpt.clone());
+    let default_og_image = format!("{}/og-default.png", base_url);
+    let og_image = create_ref(cx, state.frontmatter.image
+        .as_ref()
+        .map(|img| format!("{}/{}", base_url, img))
+        .unwrap_or_else(|| default_og_image.clone()));
+    let pub_date = create_ref(cx, state.frontmatter.date.clone());
 
-    let posts_dir = env::current_dir().unwrap().join("posts");
-    let locales = vec!["pl", "en"];
-    let mut locale_slugs: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+    // JSON-LD structured data
+    let author_json = r#"{
+        "@type": "Person",
+        "name": "Kacper Milczyński",
+        "url": "https://kmilczynski.byst.re",
+        "sameAs": [
+            "https://github.com/kmilczynski",
+            "https://linkedin.com/in/kacpermilczynski"
+        ]
+    }"#;
 
-    for locale in &locales {
-        let posts = loader::load_all_posts_for_locale(&posts_dir, Some(locale)).unwrap_or_default();
+    let image_json = state.frontmatter.image
+        .as_ref()
+        .map(|img| format!(r#","image": {{"@type": "ImageObject", "url": "{}/{}"}}"#, base_url, img))
+        .unwrap_or_default();
 
-        eprintln!("Found {} posts for locale {}", posts.len(), locale);
-        let slugs: Vec<String> = posts.iter().map(|p| {
-            eprintln!("  - {} (slug: {})", p.frontmatter.title, p.frontmatter.slug);
-            p.frontmatter.slug.clone()
-        }).collect();
+    let json_ld = create_ref(cx, format!(
+        r#"{{
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": "{}",
+            "description": "{}",
+            "datePublished": "{}",
+            "dateModified": "{}",
+            "author": {},
+            "publisher": {{
+                "@type": "Person",
+                "name": "Kacper Milczyński",
+                "url": "{}"
+            }},
+            "url": "{}",
+            "mainEntityOfPage": {{
+                "@type": "WebPage",
+                "@id": "{}"
+            }}{}
+        }}"#,
+        state.frontmatter.title.replace('"', "\\\""),
+        description.replace('"', "\\\""),
+        state.frontmatter.date,
+        state.frontmatter.date,
+        author_json,
+        base_url,
+        post_url,
+        post_url,
+        image_json
+    ));
 
-        locale_slugs.insert(locale.to_string(), slugs);
-    }
-
-    // Only build paths that exist for each locale
-    let all_paths: Vec<String> = locale_slugs.values()
-        .flatten()
-        .map(|s| s.clone())
-        .collect::<std::collections::HashSet<_>>()
-        .into_iter()
-        .collect();
-
-    BuildPaths {
-        paths: all_paths,
-        extra: ().into(),
-    }
-}
-
-#[engine_only_fn]
-fn head(cx: Scope) -> View<SsrNode> {
     view! { cx,
-        title { "Blog Post | Kacper" }
+        title { (*title) }
+        meta(name="description", content=description)
+
+        // Open Graph
+        meta(property="og:type", content="article")
+        meta(property="og:title", content=title)
+        meta(property="og:description", content=description)
+        meta(property="og:url", content=post_url)
+        meta(property="og:image", content=og_image)
+        meta(property="article:published_time", content=pub_date)
+        meta(property="article:author", content="Kacper Milczyński")
+
+        // Twitter Card
+        meta(name="twitter:card", content="summary_large_image")
+        meta(name="twitter:title", content=title)
+        meta(name="twitter:description", content=description)
+        meta(name="twitter:image", content=og_image)
+
+        // Canonical
+        link(rel="canonical", href=post_url)
+
+        // JSON-LD
+        script(type="application/ld+json", dangerously_set_inner_html=json_ld)
     }
 }
 
@@ -159,7 +265,9 @@ pub fn get_template<G: Html>() -> Template<G> {
     Template::build("blog/posts")
         .build_paths_fn(get_build_paths)
         .build_state_fn(get_build_state)
-        .head(head)
+        .incremental_generation()
+        .revalidate_after("5s")
+        .head_with_state(head)
         .view_with_unreactive_state(BlogPostPage)
         .build()
 }

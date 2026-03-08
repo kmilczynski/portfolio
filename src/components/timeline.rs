@@ -36,9 +36,9 @@ pub fn Timeline<G: Html>(cx: Scope, props: TimelineProps) -> View<G> {
                             view! { cx,
                                 article(class="relative") {
                                     div(class=dot_class) {}
-                                    div(class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 mb-2") {
+                                    div(class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2") {
                                         h3(class="text-cream font-medium") { (exp.title) }
-                                        span(class="text-gray-600 text-sm") { "·" }
+                                        span(class="text-gray-600 text-sm") { "—" }
                                         span(class="text-accent-light text-sm") { (exp.company) }
                                     }
                                     p(class="font-mono text-xs text-gray-600 mb-2") {

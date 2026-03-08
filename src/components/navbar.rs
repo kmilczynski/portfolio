@@ -5,10 +5,10 @@ use sycamore::prelude::*;
 pub fn Navbar<G: Html>(cx: Scope) -> View<G> {
     let current_locale = Reactor::<G>::from_cx(cx).get_translator().get_locale();
     #[allow(unused_variables)] // its used but only in client so it gives error
-    let (locale_display, target_locale) = if current_locale == "pl" {
-        ("🇬🇧", "en")
+    let (flag_url, flag_alt, target_locale) = if current_locale == "pl" {
+        ("https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us.svg", "EN", "en")
     } else {
-        ("🇵🇱", "pl")
+        ("https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/pl.svg", "PL", "pl")
     };
 
     view! { cx,
@@ -24,14 +24,20 @@ pub fn Navbar<G: Html>(cx: Scope) -> View<G> {
                         a(href=link!(cx, "/projects"), class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "projects" }
                         a(href=link!(cx, "/blog"), class="nav-link relative text-sm text-gray-400 hover:text-cream transition-colors") { "blog" }
                         span(
-                            class="text-2xl cursor-pointer hover:scale-110 transition-transform duration-200 select-none",
+                            class="cursor-pointer hover:scale-110 transition-transform duration-200 select-none flex items-center",
                             style="cursor: pointer;",
+                            title=flag_alt,
                             on:click = move |_| {
                                 #[cfg(client)]
                                 Reactor::<G>::from_cx(cx).switch_locale(target_locale);
                             }
                         ) {
-                            (locale_display)
+                            img(
+                                src=flag_url,
+                                alt=flag_alt,
+                                class="w-6 h-auto rounded-sm",
+                                style="min-width: 1.5rem;"
+                            )
                         }
                     }
                 }

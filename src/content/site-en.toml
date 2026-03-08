@@ -6,7 +6,7 @@ author = "Kacper"
 [social]
 github = "https://github.com/kmilczynski"
 linkedin = "https://linkedin.com/in/kacpermilczynski"
-email = "illadd@soon.com"
+email = "kacpermilczynski@gmail.com"
 
 [about]
 greeting = "Hi, my name is"
@@ -44,7 +44,7 @@ technologies = "DDD, CQRS, Hexagonal, TDD"
 
 [[skills]]
 name = "Tools"
-technologies = "Git, PHPUnit, xDebug, Linux"
+technologies = "Git, PHPUnit, Rector, PHPStan, PHP CS Fixer, xDebug, Claude"
 
 [[skills]]
 name = "IDE"
@@ -54,15 +54,15 @@ technologies = "PHPStorm, CursorAI, VSCodium"
 title = "PHP Developer"
 company = "Open Nexus Sp. z o.o."
 period = "Aug 2025 — Present"
-description = "Working on rewriting legacy system, implementing architectural solutions with DDD and CQRS patterns. Developing modular monolith, maintaining old system, fixing bugs and creating new features."
-stack = "PHP 8.x, PHP 7.3, Symfony 7, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
+description = "Maintaining legacy public proceeding system. Database query optimization. Creating new modules and rewriting the old system on new architecture."
+stack = "PHP 8.x, PHP 7.3, Symfony 7/8, Symfony 3.4, MySQL, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI, GCP, Terraform"
 current = true
 
 [[experience]]
 title = "PHP/TypeScript Developer / DevOps"
 company = "Coraz Lepsza Firma"
 period = "Jan 2023 — Jul 2025"
-description = "Rewrote CRM system and PHP API into TypeScript. Developed modular monolith with DDD architecture, maintained AWS infrastructure with Terraform, created advanced MongoDB queries."
+description = "Rewriting legacy CRM system to new technology (PHP Symfony, later TypeScript with Nest.js). Creating integrations with external customer support ticketing system and Google services."
 stack = "PHP 8.x, Symfony 7, TypeScript, Nest.js, MySQL, MongoDB, RabbitMQ, SQS, API Platform, PHPUnit, Docker, GitLab CI, AWS, Terraform"
 current = false
 
@@ -70,7 +70,7 @@ current = false
 title = "PHP Developer"
 company = "Satisfly"
 period = "Dec 2021 — Dec 2022"
-description = "Developed ecommerce integration system with hexagonal architecture and TDD. Implemented JWT authorization, created API documentation with API Platform."
+description = "Working on creating data funnel for ecommerce client. The integrator helped clients with data exchange between ecommerce systems such as Baselinker, Idosell and Magento."
 stack = "PHP 8.x, Symfony 5, PostgreSQL, Redis, RabbitMQ, API Platform, PHPUnit, Docker, GitLab CI"
 current = false
 
@@ -78,6 +78,6 @@ current = false
 title = "Software Developer"
 company = "Questy"
 period = "May 2021 — Dec 2021"
-description = "Maintained client systems, extended ERP integrations, participated in code reviews and client discussions. Mentored new developers."
-stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, ERP Systems"
+description = "Implementation and maintenance of dedicated CRM system for clients. System modifications according to client requirements, integrations with external ERP systems."
+stack = "PHP 7.x, Symfony 1, PostgreSQL, Redis, Docker, GitLab CI, CRM Systems"
 current = false

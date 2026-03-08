@@ -535,7 +535,9 @@ body::before {
   transform: scale(1.05);
 }
 .project-image {
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
 }
 
 /* Animations */
@@ -601,6 +603,7 @@ main {
 
 .blog-card {
   animation: slideInFromRight 0.3s ease-out backwards;
+  text-decoration: none !important;
 }
 
 .blog-card:nth-child(1) {
@@ -637,6 +640,44 @@ main {
 }
 .nav-link:hover::after {
   width: 100%;
+}
+
+/* Button reset */
+button {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+/* Cursor */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Flex shrink */
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Extra spacing */
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Orange accent (RSS button) */
+.text-orange-400 {
+  color: #fb923c;
+}
+.border-orange-400\/30 {
+  border-color: rgba(251, 146, 60, 0.3);
+}
+.hover\:bg-orange-400\/10:hover {
+  background-color: rgba(251, 146, 60, 0.1);
 }
 
 /* Utility */
@@ -680,7 +721,8 @@ main {
   list-style-type: none;
 }
 
-ul.flex, ul.inline-flex {
+ul.flex,
+ul.inline-flex {
   list-style-type: none;
 }
 
@@ -795,7 +837,11 @@ ul.flex, ul.inline-flex {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   border-radius: 0.5rem 0.5rem 0 0;
 }
 
